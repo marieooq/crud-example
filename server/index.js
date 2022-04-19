@@ -1,4 +1,6 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 const app = express();
 const mysql = require("mysql");
 require("dotenv").config();
@@ -10,13 +12,18 @@ const db = mysql.createPool({
   database: "crud",
 });
 
-app.get("/", (req, res) => {
+app.use(cors());
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post("/api/insert", (req, res) => {
+  const movieName = req.body.movieName;
+  const movieReview = req.body.movieReview;
+
   const sqlInsert =
-    "INSERT INTO movie_reviews (movieName, movieReview) VALUES ('Asakusa kid', 'it reminds of Japanese Showa era');";
-  console.log("process.env.DB_HOST", process.env.DB_HOST);
-  db.query(sqlInsert, (err, result) => {
-    res.send("Hello Marie");
-    // console.log(err);
+    "INSERT INTO movie_reviews (movieName, movieReview) VALUES (?,?);";
+  db.query(sqlInsert, [movieName, movieReview], (error, result) => {
+    console.log("result", result);
   });
 });
 
